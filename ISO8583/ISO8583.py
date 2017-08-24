@@ -18,10 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 __author__ = 'Igor Vitorio Custodio <igorvc@vulcanno.com.br>'
-__version__ = '1.3.1'
+__version__ = '1.3.2'
 __licence__ = 'GPL V3'
 
-from ISOErrors import *
+import sys
+if sys.version_info >= (3,):
+    from ISO8583.ISOErrors import *
+else:
+    from ISOErrors import *
 import struct
 
 
@@ -96,18 +100,23 @@ class ISO8583:
     _BITS_VALUE_TYPE[7] = ['7', 'Date and time transmission', 'N', 10, 'n']
     _BITS_VALUE_TYPE[8] = ['8', 'Amount cardholder billing fee', 'N', 8, 'n']
     _BITS_VALUE_TYPE[9] = ['9', 'Conversion rate reconciliation', 'N', 8, 'n']
-    _BITS_VALUE_TYPE[10] = ['10', 'Conversion rate cardholder billing', 'N', 8, 'n']
+    _BITS_VALUE_TYPE[10] = [
+        '10', 'Conversion rate cardholder billing', 'N', 8, 'n']
     _BITS_VALUE_TYPE[11] = ['11', 'Systems trace audit number', 'N', 6, 'n']
-    _BITS_VALUE_TYPE[12] = ['12', 'Date and time local transaction', 'N', 6, 'n']
+    _BITS_VALUE_TYPE[12] = [
+        '12', 'Date and time local transaction', 'N', 6, 'n']
     _BITS_VALUE_TYPE[13] = ['13', 'Date effective', 'N', 4, 'n']
     _BITS_VALUE_TYPE[14] = ['14', 'Date expiration', 'N', 4, 'n']
     _BITS_VALUE_TYPE[15] = ['15', 'Date settlement', 'N', 4, 'n']
     _BITS_VALUE_TYPE[16] = ['16', 'Date conversion', 'N', 4, 'n']
     _BITS_VALUE_TYPE[17] = ['17', 'Date capture', 'N', 4, 'n']
     _BITS_VALUE_TYPE[18] = ['18', 'Message error indicator', 'N', 4, 'n']
-    _BITS_VALUE_TYPE[19] = ['19', 'Country code acquiring institution', 'N', 3, 'n']
-    _BITS_VALUE_TYPE[20] = ['20', 'Country code primary account number (PAN)', 'N', 3, 'n']
-    _BITS_VALUE_TYPE[21] = ['21', 'Transaction life cycle identification data', 'ANS', 3, 'n']
+    _BITS_VALUE_TYPE[19] = [
+        '19', 'Country code acquiring institution', 'N', 3, 'n']
+    _BITS_VALUE_TYPE[20] = [
+        '20', 'Country code primary account number (PAN)', 'N', 3, 'n']
+    _BITS_VALUE_TYPE[21] = [
+        '21', 'Transaction life cycle identification data', 'ANS', 3, 'n']
     _BITS_VALUE_TYPE[22] = ['22', 'Point of service data code', 'N', 3, 'n']
     _BITS_VALUE_TYPE[23] = ['23', 'Card sequence number', 'N', 3, 'n']
     _BITS_VALUE_TYPE[24] = ['24', 'Function code', 'N', 3, 'n']
@@ -118,8 +127,10 @@ class ISO8583:
     _BITS_VALUE_TYPE[29] = ['29', 'Reconciliation indicator', 'N', 8, 'n']
     _BITS_VALUE_TYPE[30] = ['30', 'Amounts original', 'N', 8, 'n']
     _BITS_VALUE_TYPE[31] = ['31', 'Acquirer reference number', 'N', 8, 'n']
-    _BITS_VALUE_TYPE[32] = ['32', 'Acquiring institution identification code', 'LL', 11, 'n']
-    _BITS_VALUE_TYPE[33] = ['33', 'Forwarding institution identification code', 'LL', 11, 'n']
+    _BITS_VALUE_TYPE[32] = [
+        '32', 'Acquiring institution identification code', 'LL', 11, 'n']
+    _BITS_VALUE_TYPE[33] = [
+        '33', 'Forwarding institution identification code', 'LL', 11, 'n']
     _BITS_VALUE_TYPE[34] = ['34', 'Electronic commerce data', 'LL', 28, 'n']
     _BITS_VALUE_TYPE[35] = ['35', 'Track 2 data', 'LL', 37, 'n']
     _BITS_VALUE_TYPE[36] = ['36', 'Track 3 data', 'LLL', 104, 'n']
@@ -127,9 +138,12 @@ class ISO8583:
     _BITS_VALUE_TYPE[38] = ['38', 'Approval code', 'N', 6, 'an']
     _BITS_VALUE_TYPE[39] = ['39', 'Action code', 'A', 2, 'an']
     _BITS_VALUE_TYPE[40] = ['40', 'Service code', 'N', 3, 'an']
-    _BITS_VALUE_TYPE[41] = ['41', 'Card acceptor terminal identification', 'N', 8, 'ans']
-    _BITS_VALUE_TYPE[42] = ['42', 'Card acceptor identification code', 'A', 15, 'ans']
-    _BITS_VALUE_TYPE[43] = ['43', 'Card acceptor name/location', 'A', 40, 'asn']
+    _BITS_VALUE_TYPE[41] = [
+        '41', 'Card acceptor terminal identification', 'N', 8, 'ans']
+    _BITS_VALUE_TYPE[42] = [
+        '42', 'Card acceptor identification code', 'A', 15, 'ans']
+    _BITS_VALUE_TYPE[43] = [
+        '43', 'Card acceptor name/location', 'A', 40, 'asn']
     _BITS_VALUE_TYPE[44] = ['44', 'Additional response data', 'LL', 25, 'an']
     _BITS_VALUE_TYPE[45] = ['45', 'Track 1 data', 'LL', 76, 'an']
     _BITS_VALUE_TYPE[46] = ['46', 'Amounts fees', 'LLL', 999, 'an']
@@ -137,26 +151,39 @@ class ISO8583:
     _BITS_VALUE_TYPE[48] = ['48', 'Additional data private', 'LLL', 999, 'an']
     _BITS_VALUE_TYPE[49] = ['49', 'Verification data', 'A', 3, 'a']
     _BITS_VALUE_TYPE[50] = ['50', 'Currency code, settlement', 'AN', 3, 'an']
-    _BITS_VALUE_TYPE[51] = ['51', 'Currency code, cardholder billing', 'A', 3, 'a']
-    _BITS_VALUE_TYPE[52] = ['52', 'Personal identification number (PIN) data', 'B', 16, 'b']
-    _BITS_VALUE_TYPE[53] = ['53', 'Security related control information', 'LL', 18, 'n']
+    _BITS_VALUE_TYPE[51] = [
+        '51', 'Currency code, cardholder billing', 'A', 3, 'a']
+    _BITS_VALUE_TYPE[52] = [
+        '52', 'Personal identification number (PIN) data', 'B', 16, 'b']
+    _BITS_VALUE_TYPE[53] = [
+        '53', 'Security related control information', 'LL', 18, 'n']
     _BITS_VALUE_TYPE[54] = ['54', 'Amounts additional', 'LLL', 120, 'an']
-    _BITS_VALUE_TYPE[55] = ['55', 'Integrated circuit card (ICC) system related data', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[55] = [
+        '55', 'Integrated circuit card (ICC) system related data', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[56] = ['56', 'Original data elements', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[57] = ['57', 'Authorisation life cycle code', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[58] = ['58', 'Authorising agent institution identification code', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[57] = [
+        '57', 'Authorisation life cycle code', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[58] = [
+        '58', 'Authorising agent institution identification code', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[59] = ['59', 'Transport data', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[60] = ['60', 'Reserved for national use', 'LL', 7, 'ans']
-    _BITS_VALUE_TYPE[61] = ['61', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[62] = ['62', 'Reserved for private use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[63] = ['63', 'Reserved for private use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[64] = ['64', 'Message authentication code (MAC) field', 'B', 16, 'b']
+    _BITS_VALUE_TYPE[61] = [
+        '61', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[62] = [
+        '62', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[63] = [
+        '63', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[64] = [
+        '64', 'Message authentication code (MAC) field', 'B', 16, 'b']
     _BITS_VALUE_TYPE[65] = ['65', 'Bitmap tertiary', 'B', 16, 'b']
     _BITS_VALUE_TYPE[66] = ['66', 'Settlement code', 'N', 1, 'n']
     _BITS_VALUE_TYPE[67] = ['67', 'Extended payment data', 'N', 2, 'n']
-    _BITS_VALUE_TYPE[68] = ['68', 'Receiving institution country code', 'N', 3, 'n']
-    _BITS_VALUE_TYPE[69] = ['69', 'Settlement institution county code', 'N', 3, 'n']
-    _BITS_VALUE_TYPE[70] = ['70', 'Network management Information code', 'N', 3, 'n']
+    _BITS_VALUE_TYPE[68] = [
+        '68', 'Receiving institution country code', 'N', 3, 'n']
+    _BITS_VALUE_TYPE[69] = [
+        '69', 'Settlement institution county code', 'N', 3, 'n']
+    _BITS_VALUE_TYPE[70] = [
+        '70', 'Network management Information code', 'N', 3, 'n']
     _BITS_VALUE_TYPE[71] = ['71', 'Message number', 'N', 4, 'n']
     _BITS_VALUE_TYPE[72] = ['72', 'Data record', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[73] = ['73', 'Date action', 'N', 6, 'n']
@@ -168,10 +195,14 @@ class ISO8583:
     _BITS_VALUE_TYPE[79] = ['79', 'Transfer, reversal number', 'N', 10, 'n']
     _BITS_VALUE_TYPE[80] = ['80', 'Inquiries number', 'N', 10, 'n']
     _BITS_VALUE_TYPE[81] = ['81', 'Authorizations, number', 'N', 10, 'n']
-    _BITS_VALUE_TYPE[82] = ['82', 'Credits, processing fee amount', 'N', 12, 'n']
-    _BITS_VALUE_TYPE[83] = ['83', 'Credits, transaction fee amount', 'N', 12, 'n']
-    _BITS_VALUE_TYPE[84] = ['84', 'Debits, processing fee amount', 'N', 12, 'n']
-    _BITS_VALUE_TYPE[85] = ['85', 'Debits, transaction fee amount', 'N', 12, 'n']
+    _BITS_VALUE_TYPE[82] = [
+        '82', 'Credits, processing fee amount', 'N', 12, 'n']
+    _BITS_VALUE_TYPE[83] = [
+        '83', 'Credits, transaction fee amount', 'N', 12, 'n']
+    _BITS_VALUE_TYPE[84] = [
+        '84', 'Debits, processing fee amount', 'N', 12, 'n']
+    _BITS_VALUE_TYPE[85] = [
+        '85', 'Debits, transaction fee amount', 'N', 12, 'n']
     _BITS_VALUE_TYPE[86] = ['86', 'Credits, amount', 'N', 15, 'n']
     _BITS_VALUE_TYPE[87] = ['87', 'Credits, reversal amount', 'N', 15, 'n']
     _BITS_VALUE_TYPE[88] = ['88', 'Debits, amount', 'N', 15, 'n']
@@ -185,38 +216,56 @@ class ISO8583:
     _BITS_VALUE_TYPE[96] = ['96', 'Message security code', 'AN', 8, 'an']
     _BITS_VALUE_TYPE[97] = ['97', 'Amount, net settlement', 'N', 16, 'n']
     _BITS_VALUE_TYPE[98] = ['98', 'Payee', 'ANS', 25, 'ans']
-    _BITS_VALUE_TYPE[99] = ['99', 'Settlement institution identification code', 'LL', 11, 'n']
-    _BITS_VALUE_TYPE[100] = ['100', 'Receiving institution identification code', 'LL', 11, 'n']
+    _BITS_VALUE_TYPE[99] = [
+        '99', 'Settlement institution identification code', 'LL', 11, 'n']
+    _BITS_VALUE_TYPE[100] = [
+        '100', 'Receiving institution identification code', 'LL', 11, 'n']
     _BITS_VALUE_TYPE[101] = ['101', 'File name', 'ANS', 17, 'ans']
-    _BITS_VALUE_TYPE[102] = ['102', 'Account identification 1', 'LL', 28, 'ans']
-    _BITS_VALUE_TYPE[103] = ['103', 'Account identification 2', 'LL', 28, 'ans']
-    _BITS_VALUE_TYPE[104] = ['104', 'Transaction description', 'LLL', 100, 'ans']
+    _BITS_VALUE_TYPE[102] = [
+        '102', 'Account identification 1', 'LL', 28, 'ans']
+    _BITS_VALUE_TYPE[103] = [
+        '103', 'Account identification 2', 'LL', 28, 'ans']
+    _BITS_VALUE_TYPE[104] = [
+        '104', 'Transaction description', 'LLL', 100, 'ans']
     _BITS_VALUE_TYPE[105] = ['105', 'Reserved for ISO use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[106] = ['106', 'Reserved for ISO use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[107] = ['107', 'Reserved for ISO use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[108] = ['108', 'Reserved for ISO use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[109] = ['109', 'Reserved for ISO use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[110] = ['110', 'Reserved for ISO use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[111] = ['111', 'Reserved for private use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[112] = ['112', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[111] = [
+        '111', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[112] = [
+        '112', 'Reserved for private use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[113] = ['113', 'Reserved for private use', 'LL', 11, 'n']
-    _BITS_VALUE_TYPE[114] = ['114', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[115] = ['115', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[116] = ['116', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[117] = ['117', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[118] = ['118', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[119] = ['119', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[120] = ['120', 'Reserved for private use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[121] = ['121', 'Reserved for private use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[122] = ['122', 'Reserved for national use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[123] = ['123', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[114] = [
+        '114', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[115] = [
+        '115', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[116] = [
+        '116', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[117] = [
+        '117', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[118] = [
+        '118', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[119] = [
+        '119', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[120] = [
+        '120', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[121] = [
+        '121', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[122] = [
+        '122', 'Reserved for national use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[123] = [
+        '123', 'Reserved for private use', 'LLL', 999, 'ans']
     _BITS_VALUE_TYPE[124] = ['124', 'Info Text', 'LLL', 255, 'ans']
-    _BITS_VALUE_TYPE[125] = ['125', 'Network management information', 'LL', 50, 'ans']
+    _BITS_VALUE_TYPE[125] = [
+        '125', 'Network management information', 'LL', 50, 'ans']
     _BITS_VALUE_TYPE[126] = ['126', 'Issuer trace id', 'LL', 6, 'ans']
-    _BITS_VALUE_TYPE[127] = ['127', 'Reserved for private use', 'LLL', 999, 'ans']
-    _BITS_VALUE_TYPE[128] = ['128', 'Message authentication code (MAC) field', 'B', 16, 'b']
-
-
+    _BITS_VALUE_TYPE[127] = [
+        '127', 'Reserved for private use', 'LLL', 999, 'ans']
+    _BITS_VALUE_TYPE[128] = [
+        '128', 'Message authentication code (MAC) field', 'B', 16, 'b']
 
     ################################################################################################
     # Default constructor of the ISO8583 Object
@@ -235,7 +284,7 @@ class ISO8583:
         # Bitmap ASCII representantion
         self.BITMAP_HEX = ''
         # MTI
-        self.MESSAGE_TYPE_INDICATION = '';
+        self.MESSAGE_TYPE_INDICATION = ''
         # Debug ?
         self.DEBUG = debug
 
@@ -291,7 +340,6 @@ class ISO8583:
 
     ################################################################################################
 
-
     ################################################################################################
     # Set the MTI
     def setTransationType(self, type):
@@ -305,7 +353,7 @@ class ISO8583:
             type = type[0:3]
             raise ValueToLarge('Error: value up to size! MTI limit size = 4')
 
-        typeT = "";
+        typeT = ""
         if len(type) < 4:
             for cont in range(len(type), 4):
                 typeT += "0"
@@ -399,11 +447,10 @@ class ISO8583:
         if self.getBitType(bit) == 'B':
             self.__setBitTypeB(bit, value)
 
-
-
         # Continuation bit?
         if bit > 64:
-            self.BITMAP[0] = self.BITMAP[0] | self._TMP[2]  # need to set bit 1 of first "bit" in bitmap
+            # need to set bit 1 of first "bit" in bitmap
+            self.BITMAP[0] = self.BITMAP[0] | self._TMP[2]
 
         if (bit % 8) == 0:
             pos = (bit / 8) - 1
@@ -445,7 +492,8 @@ class ISO8583:
             if (self.BITMAP[0] & self._BIT_POSITION_1) != self._BIT_POSITION_1:
                 # Only has the first bitmap
                 if self.DEBUG == True:
-                    print('%d Bitmap = %d(Decimal) = %s (hexa) ' % (c, self.BITMAP[c], hex(self.BITMAP[c])))
+                    print('%d Bitmap = %d(Decimal) = %s (hexa) ' %
+                          (c, self.BITMAP[c], hex(self.BITMAP[c])))
 
                 tm = hex(self.BITMAP[c])[2:]
                 if len(tm) != 2:
@@ -455,7 +503,8 @@ class ISO8583:
                     break
             else:  # second bitmap
                 if self.DEBUG == True:
-                    print('%d Bitmap = %d(Decimal) = %s (hexa) ' % (c, self.BITMAP[c], hex(self.BITMAP[c])))
+                    print('%d Bitmap = %d(Decimal) = %s (hexa) ' %
+                          (c, self.BITMAP[c], hex(self.BITMAP[c])))
 
                 tm = hex(self.BITMAP[c])[2:]
                 if len(tm) != 2:
@@ -480,7 +529,8 @@ class ISO8583:
         for x in range(0, 32, 2):
             if (int(bitmap[0:2], 16) & self._BIT_POSITION_1) != self._BIT_POSITION_1:  # Only 1 bitmap
                 if self.DEBUG == True:
-                    print('Token[%d] %s converted to int is = %s' % (x, bitmap[x:x + 2], int(bitmap[x:x + 2], 16)))
+                    print('Token[%d] %s converted to int is = %s' %
+                          (x, bitmap[x:x + 2], int(bitmap[x:x + 2], 16)))
 
                 self.BITMAP_HEX += bitmap[x:x + 2]
                 self.BITMAP[cont] = int(bitmap[x:x + 2], 16)
@@ -488,7 +538,8 @@ class ISO8583:
                     break
             else:  # Second bitmap
                 if self.DEBUG == True:
-                    print('Token[%d] %s converted to int is = %s' % (x, bitmap[x:x + 2], int(bitmap[x:x + 2], 16)))
+                    print('Token[%d] %s converted to int is = %s' %
+                          (x, bitmap[x:x + 2], int(bitmap[x:x + 2], 16)))
 
                 self.BITMAP_HEX += bitmap[x:x + 2]
                 self.BITMAP[cont] = int(bitmap[x:x + 2], 16)
@@ -520,7 +571,7 @@ class ISO8583:
             for d in range(1, 9):
                 if self.DEBUG == True:
                     print('Value (%d)-> %s & %s = %s' % (
-                    d, self.BITMAP[c], self._TMP[d], (self.BITMAP[c] & self._TMP[d])))
+                        d, self.BITMAP[c], self._TMP[d], (self.BITMAP[c] & self._TMP[d])))
                 if (self.BITMAP[c] & self._TMP[d]) == self._TMP[d]:
                     if d == 1:  # e o 8 bit
                         if self.DEBUG == True:
@@ -536,7 +587,8 @@ class ISO8583:
 
                         else:
                             if self.DEBUG == True:
-                                print('Bit %s is present !!!' % (c * 8 + d - 1))
+                                print('Bit %s is present !!!' %
+                                      (c * 8 + d - 1))
 
                             bits.append(c * 8 + d - 1)
                             self.BITMAP_VALUES[c * 8 + d - 1] = 'X'
@@ -558,7 +610,7 @@ class ISO8583:
             for d in range(1, 9):
                 if self.DEBUG == True:
                     print('Value (%d)-> %s & %s = %s' % (
-                    d, self.BITMAP[c], self._TMP[d], (self.BITMAP[c] & self._TMP[d])))
+                        d, self.BITMAP[c], self._TMP[d], (self.BITMAP[c] & self._TMP[d])))
                 if (self.BITMAP[c] & self._TMP[d]) == self._TMP[d]:
                     if d == 1:  # e o 8 bit
                         if self.DEBUG == True:
@@ -574,7 +626,8 @@ class ISO8583:
 
                         else:
                             if self.DEBUG == True:
-                                print('Bit %s is present !!!' % (c * 8 + d - 1))
+                                print('Bit %s is present !!!' %
+                                      (c * 8 + d - 1))
 
                             bits.append(c * 8 + d - 1)
 
@@ -601,10 +654,10 @@ class ISO8583:
         if len(value) > 99:
             # value = value[0:99]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
         if len(value) > self.getBitLimit(bit):
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
 
         size = "%s" % len(value)
 
@@ -629,10 +682,10 @@ class ISO8583:
 
         if len(value) > 999:
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
         if len(value) > self.getBitLimit(bit):
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
 
         size = "%s" % len(value)
 
@@ -658,7 +711,7 @@ class ISO8583:
         if len(value) > self.getBitLimit(bit):
             value = value[0:self.getBitLimit(bit)]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -682,7 +735,7 @@ class ISO8583:
         if len(value) > self.getBitLimit(bit):
             value = value[0:self.getBitLimit(bit)]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -706,7 +759,7 @@ class ISO8583:
         if len(value) > self.getBitLimit(bit):
             value = value[0:self.getBitLimit(bit)]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -730,7 +783,7 @@ class ISO8583:
         if len(value) > self.getBitLimit(bit):
             value = value[0:self.getBitLimit(bit)]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
-            bit, self.getBitType(bit), self.getBitLimit(bit)))
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -755,7 +808,7 @@ class ISO8583:
         for cont in range(0, 129):
             if self.BITMAP_VALUES[cont] != self._BIT_DEFAULT_VALUE:
                 print("Bit[%s] of type %s has limit %s = %s" % (
-                cont, self.getBitType(cont), self.getBitLimit(cont), self.BITMAP_VALUES[cont]))
+                    cont, self.getBitType(cont), self.getBitLimit(cont), self.BITMAP_VALUES[cont]))
 
     ################################################################################################
 
@@ -806,7 +859,7 @@ class ISO8583:
         if self.MESSAGE_TYPE_INDICATION == '':
             raise InvalidMTI('Check MTI! Do you set it?')
 
-        resp = "";
+        resp = ""
 
         resp += self.MESSAGE_TYPE_INDICATION
         resp += self.BITMAP_HEX
@@ -839,29 +892,31 @@ class ISO8583:
 
         if self.DEBUG == True:
             print('Trying to redefine the bit with (self,%s,%s,%s,%s,%s,%s)' % (
-            bit, smallStr, largeStr, bitType, size, valueType))
+                bit, smallStr, largeStr, bitType, size, valueType))
 
         # validating bit position
         if bit == 1 or bit == 64 or bit < 0 or bit > 128:
-            raise BitInexistent("Error %d cannot be changed because has a invalid number!" % bit)
+            raise BitInexistent(
+                "Error %d cannot be changed because has a invalid number!" % bit)
 
         # need to validate if the type and size is compatible! example slimit = 100 and type = LL
 
         if bitType == "B" or bitType == "N" or bitType == "AN" or bitType == "ANS" or bitType == "LL" or bitType == "LLL":
             if valueType == "a" or valueType == "n" or valueType == "ansb" or valueType == "ans" or valueType == "b" or valueType == "an":
-                self._BITS_VALUE_TYPE[bit] = [smallStr, largeStr, bitType, size, valueType]
+                self._BITS_VALUE_TYPE[bit] = [
+                    smallStr, largeStr, bitType, size, valueType]
                 if self.DEBUG == True:
                     print('Bit %d redefined!' % bit)
 
             else:
                 raise InvalidValueType(
                     "Error bit %d cannot be changed because %s is not a valid valueType (a, an, n ansb, b)!" % (
-                    bit, valueType))
+                        bit, valueType))
             # return
         else:
             raise InvalidBitType(
                 "Error bit %d cannot be changed because %s is not a valid bitType (Hex, N, AN, ANS, LL, LLL)!" % (
-                bit, bitType))
+                    bit, bitType))
         # return
 
     ################################################################################################
@@ -926,12 +981,13 @@ class ISO8583:
         if self.DEBUG == True:
             print('This is the input string <%s>' % strWithoutMtiBitmap)
 
-        offset = 0;
+        offset = 0
         # jump bit 1 because it was alread defined in the "__inicializeBitsFromBitmapStr"
         for cont in range(2, 129):
             if self.BITMAP_VALUES[cont] != self._BIT_DEFAULT_VALUE:
                 if self.DEBUG == True:
-                    print('String = %s offset = %s bit = %s' % (strWithoutMtiBitmap[offset:], offset, cont))
+                    print('String = %s offset = %s bit = %s' %
+                          (strWithoutMtiBitmap[offset:], offset, cont))
 
                 if self.getBitType(cont) == 'LL':
                     valueSize = int(strWithoutMtiBitmap[offset:offset + 2])
@@ -943,10 +999,11 @@ class ISO8583:
                         # raise ValueToLarge("This bit is larger than the especification!")
 
                     self.BITMAP_VALUES[cont] = strWithoutMtiBitmap[offset:offset + 2] + strWithoutMtiBitmap[
-                                                                                        offset + 2:offset + 2 + valueSize]
+                        offset + 2:offset + 2 + valueSize]
 
                     if self.DEBUG == True:
-                        print('\tSetting bit %s value %s' % (cont, self.BITMAP_VALUES[cont]))
+                        print('\tSetting bit %s value %s' %
+                              (cont, self.BITMAP_VALUES[cont]))
 
                     # fix for AppZone - their responses don't comply with specifications
                     if cont == 33:
@@ -960,12 +1017,14 @@ class ISO8583:
                         print('Size of the message in LLL = %s' % valueSize)
 
                     if valueSize > self.getBitLimit(cont):
-                        raise ValueToLarge("This bit is larger than the especification!")
+                        raise ValueToLarge(
+                            "This bit is larger than the especification!")
                     self.BITMAP_VALUES[cont] = strWithoutMtiBitmap[offset:offset + 3] + strWithoutMtiBitmap[
-                                                                                        offset + 3:offset + 3 + valueSize]
+                        offset + 3:offset + 3 + valueSize]
 
                     if self.DEBUG == True:
-                        print('\tSetting bit %s value %s' % (cont, self.BITMAP_VALUES[cont]))
+                        print('\tSetting bit %s value %s' %
+                              (cont, self.BITMAP_VALUES[cont]))
 
                     offset += valueSize + 3
 
@@ -978,10 +1037,12 @@ class ISO8583:
 
                 if self.getBitType(cont) == 'N' or self.getBitType(cont) == 'A' or self.getBitType(
                         cont) == 'ANS' or self.getBitType(cont) == 'B' or self.getBitType(cont) == 'AN':
-                    self.BITMAP_VALUES[cont] = strWithoutMtiBitmap[offset:self.getBitLimit(cont) + offset]
+                    self.BITMAP_VALUES[cont] = strWithoutMtiBitmap[offset:self.getBitLimit(
+                        cont) + offset]
 
                     if self.DEBUG == True:
-                        print('\tSetting bit %s value %s' % (cont, self.BITMAP_VALUES[cont]))
+                        print('\tSetting bit %s value %s' %
+                              (cont, self.BITMAP_VALUES[cont]))
 
                     offset += self.getBitLimit(cont)
 
@@ -1019,7 +1080,8 @@ class ISO8583:
         self.__getBitmapFromStr(isoT)
         self.__inicializeBitsFromBitmapStr(self.BITMAP_HEX)
         if self.DEBUG == True:
-            print('This is the array of bits (before) %s ' % self.BITMAP_VALUES)
+            print('This is the array of bits (before) %s ' %
+                  self.BITMAP_VALUES)
 
         self.__getBitFromStr(iso[4 + len(self.BITMAP_HEX):])
         if self.DEBUG == True:
@@ -1057,7 +1119,7 @@ class ISO8583:
         """
         ret = -1  # By default is different
         if (self.getMTI() == obj2.getMTI()) and (self.getBitmap() == obj2.getBitmap()) and (
-            self.getValuesArray() == obj2.getValuesArray()):
+                self.getValuesArray() == obj2.getValuesArray()):
             ret = 0
 
         return ret
