@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 __author__ = 'Igor Vitorio Custodio <igorvc@vulcanno.com.br>'
-__version__ = '1.3.3'
+__version__ = '1.3.4'
 __licence__ = 'GPL V3'
 
 import sys
@@ -718,6 +718,9 @@ class ISO8583:
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
                 bit, self.getBitType(bit), self.getBitLimit(bit)))
 
+        if not value.isdecimal():
+            __raiseValueTypeError(bit)
+
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
     ################################################################################################
@@ -741,6 +744,9 @@ class ISO8583:
             value = value[0:self.getBitLimit(bit)]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
                 bit, self.getBitType(bit), self.getBitLimit(bit)))
+
+        if not value.isalpha():
+            __raiseValueTypeError(bit)
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -789,6 +795,9 @@ class ISO8583:
             value = value[0:self.getBitLimit(bit)]
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
                 bit, self.getBitType(bit), self.getBitLimit(bit)))
+
+        if not value.isalnum():
+            __raiseValueTypeError(bit)
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -976,6 +985,20 @@ class ISO8583:
     ################################################################################################
 
     ################################################################################################
+
+    def __raiseValueTypeError(self, bit):
+        """ Raise a type error exception
+            @param: bit -> bit that caused the error
+            @raises: InvalidValueType -> exception with message according to
+                     type error
+        """
+        raise InvalidValueType(
+            'Error: value of type %s has invalid type' % (self.getBitType(bit))
+        )
+
+    ################################################################################################
+
+    ################################################################################################
     # Receive a str and interpret it to bits and values
     def __getBitFromStr(self, strWithoutMtiBitmap):
         """Method that receive a string (ASCII) without MTI and Bitmaps (first and second), understand it and remove the bits values
@@ -1040,10 +1063,27 @@ class ISO8583:
                 # self.BITMAP_VALUES[cont] = '(' + strWithoutMtiBitmap[offset:offset+4] + ')' + strWithoutMtiBitmap[offset+4:offset+4+valueSize]
                 # offset += valueSize + 4
 
-                if self.getBitType(cont) == 'N' or self.getBitType(cont) == 'A' or self.getBitType(
-                        cont) == 'ANS' or self.getBitType(cont) == 'B' or self.getBitType(cont) == 'AN':
-                    self.BITMAP_VALUES[cont] = strWithoutMtiBitmap[offset:self.getBitLimit(
-                        cont) + offset]
+                bitType = self.getBitType(cont)
+
+                if bitType == 'N' or bitType == 'A' or bitType == 'ANS' or \
+                   bitType == 'B' or bitType == 'AN':
+
+                    value = strWithoutMtiBitmap[
+                                offset:self.getBitLimit(cont) + offset
+                            ]                  
+                        
+                    # Check for validity of bit's type.
+                    if bitType == 'N' and not value.isdecimal():
+                        self.__raiseValueTypeError(cont)
+
+                    if bitType == 'A' and not value.isalpha():
+                        self.__raiseValueTypeError(cont)
+
+                    if bitType == 'AN' and not value.isalnum():
+                        self.__raiseValueTypeError(bit)
+
+
+                    self.BITMAP_VALUES[cont] = value
 
                     if self.DEBUG is True:
                         print('\tSetting bit %s value %s' %
@@ -1236,7 +1276,7 @@ class ISO8583:
             if self.DEBUG is True:
                 print('Pack Little-endian')
 
-        netIso += asciiIso
+        netIso += asciiIso.encode('ascii')
 
         return netIso
 
