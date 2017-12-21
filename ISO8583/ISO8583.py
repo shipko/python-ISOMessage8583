@@ -1080,7 +1080,7 @@ class ISO8583:
                         self.__raiseValueTypeError(cont)
 
                     if bitType == 'AN' and not value.isalnum():
-                        self.__raiseValueTypeError(bit)
+                        self.__raiseValueTypeError(cont)
 
 
                     self.BITMAP_VALUES[cont] = value
