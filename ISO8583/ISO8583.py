@@ -442,6 +442,9 @@ class ISO8583:
         if self.getBitType(bit) == 'A':
             self.__setBitTypeA(bit, value)
 
+        if self.getBitType(bit) == 'AN':
+            self.__setBitTypeAN(bit, value)
+
         if self.getBitType(bit) == 'ANS' or self.getBitType(bit) == 'B':
             self.__setBitTypeANS(bit, value)
 
@@ -718,8 +721,7 @@ class ISO8583:
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
                 bit, self.getBitType(bit), self.getBitLimit(bit)))
 
-        if not value.isdecimal():
-            __raiseValueTypeError(bit)
+        self.__checkBitTypeValidity(bit, value)
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -745,8 +747,33 @@ class ISO8583:
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
                 bit, self.getBitType(bit), self.getBitLimit(bit)))
 
-        if not value.isalpha():
-            __raiseValueTypeError(bit)
+        self.__checkBitTypeValidity(bit, value)
+
+        self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
+
+    ################################################################################################
+
+    ################################################################################################
+    # Set of type AN
+    def __setBitTypeAN(self, bit, value):
+        """Method that set a bit with value in form AN
+        It complete the size of the bit with a default value
+        Example: pack.setBit(3,'30000') -> Bit 3 is a A type, so this bit, in ASCII form need to has size = 6 (ISO especification) so the value 30000 size = 5 need to receive more "1" number.
+            In this case, will be "0" in the left. In the package, the bit will be sent like '030000'
+        @param: bit -> bit to be setted
+        @param: value -> value to be setted
+        @raise: ValueToLarge Exception
+        It's a internal method, so don't call!
+        """
+
+        value = "%s" % value
+
+        if len(value) > self.getBitLimit(bit):
+            value = value[0:self.getBitLimit(bit)]
+            raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
+                bit, self.getBitType(bit), self.getBitLimit(bit)))
+
+        self.__checkBitTypeValidity(bit, value)
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -796,8 +823,7 @@ class ISO8583:
             raise ValueToLarge('Error: value up to size! Bit[%s] of type %s limit size = %s' % (
                 bit, self.getBitType(bit), self.getBitLimit(bit)))
 
-        if not value.isalnum():
-            __raiseValueTypeError(bit)
+        self.__checkBitTypeValidity(bit, value)
 
         self.BITMAP_VALUES[bit] = value.zfill(self.getBitLimit(bit))
 
@@ -999,6 +1025,33 @@ class ISO8583:
     ################################################################################################
 
     ################################################################################################
+
+    def __checkBitTypeValidity(self, bit, value):
+        """ Verify that a bit's value has the correct type
+            @param: bit -> bit to be validated
+            @param: value -> bit's value as a string
+            @raises: InvalidValueType -> exception with message according to
+                     type error
+        """
+
+        bitType = self.getBitValueType(bit)
+
+        if bitType == 'a':
+            if not all(x.isspace() or x.isalpha() for x in value):
+                self.__raiseValueTypeError(bit)
+        elif bitType == 'n':
+            if not value.isdecimal():
+                self.__raiseValueTypeError(bit)
+        elif bitType == 'an':
+            if not all(x.isspace() or x.isalnum() for x in value):
+                self.__raiseValueTypeError(bit)
+
+        # No exceptions raised, return
+        return True
+
+    ################################################################################################
+
+    ################################################################################################
     # Receive a str and interpret it to bits and values
     def __getBitFromStr(self, strWithoutMtiBitmap):
         """Method that receive a string (ASCII) without MTI and Bitmaps (first and second), understand it and remove the bits values
@@ -1017,7 +1070,9 @@ class ISO8583:
                     print('String = %s offset = %s bit = %s' %
                           (strWithoutMtiBitmap[offset:], offset, cont))
 
-                if self.getBitType(cont) == 'LL':
+                bitType = self.getBitType(cont)
+
+                if bitType == 'LL':
                     valueSize = int(strWithoutMtiBitmap[offset:offset + 2])
                     if self.DEBUG is True:
                         print('Size of the message in LL = %s' % valueSize)
@@ -1039,7 +1094,7 @@ class ISO8583:
                     else:
                         offset += valueSize + 2
 
-                if self.getBitType(cont) == 'LLL':
+                if bitType == 'LLL':
                     valueSize = int(strWithoutMtiBitmap[offset:offset + 3])
                     if self.DEBUG is True:
                         print('Size of the message in LLL = %s' % valueSize)
@@ -1063,26 +1118,14 @@ class ISO8583:
                 # self.BITMAP_VALUES[cont] = '(' + strWithoutMtiBitmap[offset:offset+4] + ')' + strWithoutMtiBitmap[offset+4:offset+4+valueSize]
                 # offset += valueSize + 4
 
-                bitType = self.getBitType(cont)
-
                 if bitType == 'N' or bitType == 'A' or bitType == 'ANS' or \
                    bitType == 'B' or bitType == 'AN':
 
                     value = strWithoutMtiBitmap[
                                 offset:self.getBitLimit(cont) + offset
-                            ]                  
-                        
-                    # Check for validity of bit's type.
-                    if bitType == 'N' and not value.isdecimal():
-                        self.__raiseValueTypeError(cont)
+                            ]
 
-                    if bitType == 'A' and not value.isalpha():
-                        self.__raiseValueTypeError(cont)
-
-                    if bitType == 'AN' and not value.isalnum():
-                        self.__raiseValueTypeError(cont)
-
-
+                    self.__checkBitTypeValidity(cont, value)
                     self.BITMAP_VALUES[cont] = value
 
                     if self.DEBUG is True:
