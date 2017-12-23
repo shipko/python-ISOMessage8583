@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 from ISO8583.ISO8583 import __version__
 
 setup(
