@@ -22,6 +22,8 @@ __version__ = '1.3.5'
 __licence__ = 'GPL V3'
 
 import sys
+import binascii
+
 if sys.version_info >= (3,):
     from ISO8583.ISOErrors import *
 else:
@@ -1307,19 +1309,26 @@ class ISO8583:
         @raise: InvalidMTI Exception
         """
 
-        netIso = ""
-        asciiIso = self.getRawIso()
+        if self.MESSAGE_TYPE_INDICATION == '':
+            raise InvalidMTI('Check MTI! Do you set it?')
 
-        if bigEndian:
-            netIso = struct.pack('!h', len(asciiIso))
-            if self.DEBUG is True:
-                print('Pack Big-endian')
-        else:
-            netIso = struct.pack('<h', len(asciiIso))
-            if self.DEBUG is True:
-                print('Pack Little-endian')
+        self.__buildBitmap()
 
-        netIso += asciiIso.encode('ascii')
+        body = ""
+
+        for cont in range(0, 129):  # fill body
+            if self.BITMAP_VALUES[cont] != self._BIT_DEFAULT_VALUE:
+                body = "%s%s" % (body, self.BITMAP_VALUES[cont])  # end getRawIso
+
+        netIso = struct.pack('!h' if bigEndian else '<h',
+                             len(self.MESSAGE_TYPE_INDICATION) + int(len(self.BITMAP_HEX) / 2) + len(body))
+
+        if self.DEBUG is True:
+            print('Pack ' + ('Big' if bigEndian else 'Little') + '-endian')
+
+        netIso += self.MESSAGE_TYPE_INDICATION.encode('ascii')
+        netIso += binascii.unhexlify(self.BITMAP_HEX)
+        netIso += body.encode('ascii')
 
         return netIso
 
