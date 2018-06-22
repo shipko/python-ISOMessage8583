@@ -22,13 +22,12 @@ __version__ = '1.3.5'
 __licence__ = 'GPL V3'
 
 import sys
-import binascii
-
 if sys.version_info >= (3,):
     from ISO8583.ISOErrors import *
 else:
     from ISOErrors import *
 import struct
+import binascii
 
 
 class ISO8583:
@@ -536,23 +535,25 @@ class ISO8583:
         if self.BITMAP_HEX != '':
             self.BITMAP_HEX = ''
 
+        BITMAP_HEX = binascii.hexlify(bitmap)
+
         for x in range(0, 32, 2):
-            if (int(bitmap[0:2], 16) & self._BIT_POSITION_1) != self._BIT_POSITION_1:  # Only 1 bitmap
+            if (int(BITMAP_HEX[0:2], 16) & self._BIT_POSITION_1) != self._BIT_POSITION_1:  # Only 1 bitmap
                 if self.DEBUG is True:
                     print('Token[%d] %s converted to int is = %s' %
-                          (x, bitmap[x:x + 2], int(bitmap[x:x + 2], 16)))
+                          (x, BITMAP_HEX[x:x + 2], int(BITMAP_HEX[x:x + 2], 16)))
 
-                self.BITMAP_HEX += bitmap[x:x + 2]
-                self.BITMAP[cont] = int(bitmap[x:x + 2], 16)
+                self.BITMAP_HEX += (str(BITMAP_HEX)[2:-1])[x:x + 2]
+                self.BITMAP[cont] = int(BITMAP_HEX[x:x + 2], 16)
                 if x == 14:
                     break
             else:  # Second bitmap
                 if self.DEBUG is True:
                     print('Token[%d] %s converted to int is = %s' %
-                          (x, bitmap[x:x + 2], int(bitmap[x:x + 2], 16)))
+                          (x, BITMAP_HEX[x:x + 2], int(BITMAP_HEX[x:x + 2], 16)))
 
-                self.BITMAP_HEX += bitmap[x:x + 2]
-                self.BITMAP[cont] = int(bitmap[x:x + 2], 16)
+                self.BITMAP_HEX += (str(BITMAP_HEX)[2:-1])[x:x + 2]
+                self.BITMAP[cont] = int(BITMAP_HEX[x:x + 2], 16)
             cont += 1
 
     ################################################################################################
@@ -1061,7 +1062,7 @@ class ISO8583:
         It's a internal method, so don't call!
         """
 
-        if self.DEBUG is True:
+        if self.DEBUG is True or True:
             print('This is the input string <%s>' % strWithoutMtiBitmap)
 
         offset = 0
@@ -1165,7 +1166,7 @@ class ISO8583:
         if self.DEBUG is True:
             print('ASCII to process <%s>' % iso)
 
-        self.__setMTIFromStr(iso)
+        self.__setMTIFromStr(str(iso[:4])[2:-1])
         isoT = iso[4:]
         self.__getBitmapFromStr(isoT)
         self.__inicializeBitsFromBitmapStr(self.BITMAP_HEX)
@@ -1173,7 +1174,7 @@ class ISO8583:
             print('This is the array of bits (before) %s ' %
                   self.BITMAP_VALUES)
 
-        self.__getBitFromStr(iso[4 + len(self.BITMAP_HEX):])
+        self.__getBitFromStr(str(iso[4 + int(len(self.BITMAP_HEX)/2):])[2:-1])
         if self.DEBUG is True:
             print('This is the array of bits (after) %s ' % self.BITMAP_VALUES)
 
@@ -1316,15 +1317,13 @@ class ISO8583:
 
         body = ""
 
-        for cont in range(0, 129):  # fill body
+        for cont in range(0, 129): # fill body
             if self.BITMAP_VALUES[cont] != self._BIT_DEFAULT_VALUE:
-                body = "%s%s" % (body, self.BITMAP_VALUES[cont])  # end getRawIso
+                body = "%s%s" % (body, self.BITMAP_VALUES[cont]) # end getRawIso
 
-        netIso = struct.pack('!h' if bigEndian else '<h',
-                             len(self.MESSAGE_TYPE_INDICATION) + int(len(self.BITMAP_HEX) / 2) + len(body))
-
+        netIso = struct.pack('!h' if bigEndian else '<h', len(self.MESSAGE_TYPE_INDICATION) + int(len(self.BITMAP_HEX)/2) + len(body))
         if self.DEBUG is True:
-            print('Pack ' + ('Big' if bigEndian else 'Little') + '-endian')
+            print('Pack ' + ('Big' if bigEndian else 'Little') +'-endian')
 
         netIso += self.MESSAGE_TYPE_INDICATION.encode('ascii')
         netIso += binascii.unhexlify(self.BITMAP_HEX)
